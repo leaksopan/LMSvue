@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .card {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+            max-height: 300px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Test</h1>
+
+    <div class="card">
+        <h2>Test API Status</h2>
+        <button onclick="testStatus()">Test Status</button>
+        <div id="status-result"></div>
+    </div>
+
+    <div class="card">
+        <h2>Test API Test Endpoint</h2>
+        <button onclick="testTestEndpoint()">Test Endpoint</button>
+        <div id="test-result"></div>
+    </div>
+
+    <div class="card">
+        <h2>Test Login</h2>
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="admin">
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="admin123">
+        </div>
+        <button onclick="testLogin()">Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <script>
+        // Function to make API requests
+        async function makeRequest(url, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const responseData = await response.json();
+                return { success: true, data: responseData, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Test status endpoint
+        async function testStatus() {
+            const resultElement = document.getElementById('status-result');
+            resultElement.innerHTML = '<p>Testing...</p>';
+
+            try {
+                const result = await makeRequest('http://localhost:3001/api/status');
+                if (result.success) {
+                    resultElement.innerHTML = `
+                        <p class="success">Success! Status: ${result.status}</p>
+                        <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultElement.innerHTML = `
+                        <p class="error">Error: ${result.error}</p>
+                    `;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <p class="error">Error: ${error.message}</p>
+                `;
+            }
+        }
+
+        // Test test endpoint
+        async function testTestEndpoint() {
+            const resultElement = document.getElementById('test-result');
+            resultElement.innerHTML = '<p>Testing...</p>';
+
+            try {
+                const result = await makeRequest('http://localhost:3001/api/test');
+                if (result.success) {
+                    resultElement.innerHTML = `
+                        <p class="success">Success! Status: ${result.status}</p>
+                        <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultElement.innerHTML = `
+                        <p class="error">Error: ${result.error}</p>
+                    `;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <p class="error">Error: ${error.message}</p>
+                `;
+            }
+        }
+
+        // Test login
+        async function testLogin() {
+            const resultElement = document.getElementById('login-result');
+            resultElement.innerHTML = '<p>Testing...</p>';
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const result = await makeRequest(
+                    'http://localhost:3001/api/auth/login',
+                    'POST',
+                    { username, password }
+                );
+
+                if (result.success) {
+                    resultElement.innerHTML = `
+                        <p class="success">Success! Status: ${result.status}</p>
+                        <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                    `;
+
+                    // Store token in localStorage
+                    if (result.data.token) {
+                        localStorage.setItem('auth_token', result.data.token);
+                        localStorage.setItem('user', JSON.stringify(result.data.user));
+                        resultElement.innerHTML += `
+                            <p class="success">Token stored in localStorage</p>
+                        `;
+                    }
+                } else {
+                    resultElement.innerHTML = `
+                        <p class="error">Error: ${result.error}</p>
+                    `;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <p class="error">Error: ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

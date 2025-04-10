@@ -19,7 +19,7 @@
           class="question-card"
         >
           <div class="question-type">
-            {{ formatQuestionType(question.type) }}
+            {{ formatQuestionType(question.type) }} <span class="question-score">({{ question.score }} poin)</span>
           </div>
 
           <h3>{{ question.question }}</h3>
@@ -34,10 +34,10 @@
             <div v-if="question.type === 'multiple_choice'" class="multiple-choice options">
               <div v-for="(option, index) in question.options" :key="index" class="option-item">
                 <label :for="`option-${question.id}-${index}`" class="option-label">
-                  <input 
-                    type="radio" 
-                    :id="`option-${question.id}-${index}`" 
-                    :value="String.fromCharCode(65 + index)" 
+                  <input
+                    type="radio"
+                    :id="`option-${question.id}-${index}`"
+                    :value="String.fromCharCode(65 + index)"
                     v-model="question.userAnswer"
                     :name="`answer-option-${question.id}`"
                   >
@@ -47,21 +47,21 @@
                 </label>
               </div>
             </div>
-            
+
             <!-- Form untuk soal essay -->
             <div v-else-if="question.type === 'essay'" class="essay">
-              <textarea 
-                v-model="question.userAnswer" 
+              <textarea
+                v-model="question.userAnswer"
                 placeholder="Tulis jawaban Anda di sini..."
                 rows="4"
                 class="essay-input"
               ></textarea>
             </div>
-            
+
             <div class="submit-section">
-              <button 
-                @click="submitAnswer(question)" 
-                class="btn btn-primary" 
+              <button
+                @click="submitAnswer(question)"
+                class="btn btn-primary"
                 :disabled="!question.userAnswer || question.isSubmitting"
               >
                 {{ question.isSubmitting ? 'Mengirim...' : 'Kirim Jawaban' }}
@@ -73,7 +73,7 @@
 
           <!-- SECTION: Tampilkan feedback setelah submit -->
           <div v-if="question.isSubmitted" class="feedback success-message">
-             <p>Jawaban Anda: 
+             <p>Jawaban Anda:
                <strong v-if="question.type === 'multiple_choice'">Opsi {{ question.userAnswer }}</strong>
                <strong v-else>{{ question.userAnswer }}</strong>
              </p>
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { questionService } from "@/services/api";
+import { questionService, answerService } from "@/services/api";
 
 export default {
   name: "QuestionsView",
@@ -147,8 +147,10 @@ export default {
       });
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 700));
-        
+        // Submit answer to the server
+        const response = await answerService.submitAnswer(question.id, question.userAnswer);
+        console.log('Answer submitted successfully:', response.data);
+
         question.isSubmitted = true;
 
       } catch (error) {
@@ -320,6 +322,13 @@ h1 {
   color: #2e7d32; /* Warna hijau tua */
   border: 1px solid #a5d6a7; /* Border hijau */
   text-align: center;
+}
+
+.question-score {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: normal;
+  margin-left: 5px;
 }
 
 /* END Tambahan style */

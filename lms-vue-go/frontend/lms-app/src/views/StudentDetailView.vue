@@ -54,6 +54,8 @@ import { studentService } from "@/services/api";
 
 export default {
   name: "StudentDetailView",
+  components: {
+  },
   data() {
     return {
       student: null,

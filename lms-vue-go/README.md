@@ -48,7 +48,7 @@ Simple Learning Management System built with Vue.js frontend and Go (Gin) backen
     ```bash
     go run main.go
     ```
-    The backend will run on `http://localhost:3000`.
+    The backend will run on `http://localhost:3001`.
 
 ### Frontend
 

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@lottiefiles/dotlottie-vue": "^0.6.1",
+    "gsap": "^3.12.7",
+    "xlsx": "^0.18.5"
+  }
+}
